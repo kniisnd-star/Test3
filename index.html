@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="th" class="h-full bg-slate-900 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ห้องทดลองเสมือนจริง: การออกแบบเครื่องย่อยเศษอาหาร</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Kanit', sans-serif;
+        }
+        /* Custom Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col overflow-x-hidden antialiased bg-slate-950 text-slate-100">
+
+    <header class="bg-slate-900/80 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-emerald-500 to-teal-600 p-2.5 rounded-xl shadow-lg shadow-emerald-500/20">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-200 bg-clip-text text-transparent">
+                        Food Shredder Lab v1.0
+                    </h1>
+                    <p class="text-xs text-slate-400">ห้องทดลองกลศาสตร์เครื่องจักรกล: การออกแบบเครื่องย่อยเศษอาหาร</p>
+                </div>
+            </div>
+            
+            <!-- Quick Challenge Button -->
+            <button id="challengeToggleBtn" onclick="toggleChallengeModal()" class="flex items-center space-x-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-medium px-4 py-2 rounded-xl transition duration-200 shadow-lg shadow-emerald-500/20 active:scale-95">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                <span>โจทย์ท้าทาย (Challenge Mission)</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT COLUMN: Control Panel (4 Cols) -->
+        <section class="lg:col-span-4 flex flex-col gap-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col gap-5">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <h2 class="text-lg font-semibold text-emerald-400 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                        แผงควบคุมพารามิเตอร์
+                    </h2>
+                    <button onclick="resetSliders()" class="text-xs text-slate-400 hover:text-emerald-400 underline transition">รีเซ็ตค่ามาตรฐาน</button>
+                </div>
+
+                <!-- Slider 1: Motor Power (P) -->
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <label for="motorPowerSlider" class="text-slate-300 font-medium">กำลังมอเตอร์ ($P$)</label>
+                        <span class="text-emerald-400 font-bold"><span id="motorPowerVal">2.2</span> kW</span>
+                    </div>
+                    <input type="range" id="motorPowerSlider" min="0.5" max="10.0" step="0.1" value="2.2" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                    <p class="text-xs text-slate-500">พละกำลังต้นกำลังของมอเตอร์ไฟฟ้า (kW)</p>
+                </div>
+
+                <!-- Slider 2: Motor RPM (N) -->
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <label for="rpmSlider" class="text-slate-300 font-medium">ความเร็วรอบเพลาตัด ($N$)</label>
+                        <span class="text-emerald-400 font-bold"><span id="rpmVal">120</span> RPM</span>
+                    </div>
+                    <input type="range" id="rpmSlider" min="30" max="300" step="5" value="120" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                    <p class="text-xs text-slate-500">ความเร็วรอบการหมุนของชุดใบย่อยผ่านชุดเกียร์</p>
+                </div>
+
+                <!-- Slider 3: Food Size / Hardness (S) -->
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <label for="foodSizeSlider" class="text-slate-300 font-medium">ขนาดและความแข็งเศษอาหาร ($D_{food}$)</label>
+                        <span class="text-emerald-400 font-bold"><span id="foodSizeVal">60</span> mm</span>
+                    </div>
+                    <input type="range" id="foodSizeSlider" min="20" max="120" step="5" value="60" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                    <p class="text-xs text-slate-500">ขนาดความกว้าง/ความหนาแน่นเศษอาหารที่ป้อน</p>
+                </div>
+
+                <!-- Slider 4: Cutter Blade Diameter (R) -->
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <label for="bladeRadiusSlider" class="text-slate-300 font-medium">รัศมีใบตัดย่อย ($R$)</label>
+                        <span class="text-emerald-400 font-bold"><span id="bladeRadiusVal">110</span> mm</span>
+                    </div>
+                    <input type="range" id="bladeRadiusSlider" min="60" max="180" step="5" value="110" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                    <p class="text-xs text-slate-500">ระยะรัศมีจากแกนเพลาถึงปลายเขี้ยวใบตัด</p>
+                </div>
+
+                <!-- Slider 5: Number of Blades (n) -->
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <label for="numBladesSlider" class="text-slate-300 font-medium">จำนวนเขี้ยวใบตัด ($n$)</label>
+                        <span class="text-emerald-400 font-bold"><span id="numBladesVal">6</span> เขี้ยว</span>
+                    </div>
+                    <input type="range" id="numBladesSlider" min="2" max="12" step="1" value="6" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                    <p class="text-xs text-slate-500">จำนวนฟันย่อยบนจานตัดคู่ขนาน</p>
+                </div>
+
+                <!-- Simulation Control Buttons -->
+                <div class="pt-2 flex gap-3">
+                    <button id="pauseBtn" onclick="togglePause()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 rounded-xl transition flex items-center justify-center gap-2 border border-slate-700">
+                        <svg id="pauseIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span id="pauseText">หยุดชั่วคราว</span>
+                    </button>
+                    <button onclick="feedExtraFood()" class="bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 font-medium px-4 py-2 rounded-xl transition border border-emerald-500/30 flex items-center justify-center gap-1.5 text-xs">
+                        🍏 ป้อนเศษอาหาร
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: Visualization & Output Dashboard (8 Cols) -->
+        <section class="lg:col-span-8 flex flex-col gap-6">
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col items-center justify-center relative overflow-hidden min-h-[360px]">
+                <div class="absolute top-4 left-4 z-10 bg-slate-950/70 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-800 text-xs font-mono text-emerald-400 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    การทำงานของกลไกย่อยตัดเศษอาหาร (Dual-Shaft Shredder)
+                </div>
+
+                <!-- Jammed Warning Indicator -->
+                <div id="jammedWarning" class="hidden absolute top-4 right-4 z-20 bg-red-600/90 text-white font-bold px-3 py-1.5 rounded-lg shadow-lg flex items-center gap-2 animate-bounce text-xs">
+                    ⚠️ คำเตือน: เครื่องติดขัด (Stalled / Jammed)! แรงบิดไม่พอ
+                </div>
+                
+                <!-- HTML5 Canvas for Kinematic Simulation -->
+                <canvas id="shredderCanvas" class="w-full h-[320px] rounded-xl bg-slate-950/50"></canvas>
+
+                <!-- Status Banner Output Metrics -->
+                <div class="w-full mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                    <div class="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
+                        <div class="text-xs text-slate-400">แรงบิดตัด ($T$)</div>
+                        <div class="text-base sm:text-lg font-bold text-emerald-400"><span id="torqueOutput">0.0</span> N·m</div>
+                    </div>
+                    <div class="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
+                        <div class="text-xs text-slate-400">แรงตัดย่อย ($F_{shear}$)</div>
+                        <div class="text-base sm:text-lg font-bold text-teal-300"><span id="forceOutput">0.0</span> N</div>
+                    </div>
+                    <div class="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
+                        <div class="text-xs text-slate-400">แรงต้านจำเป็น ($F_{req}$)</div>
+                        <div class="text-base sm:text-lg font-bold text-amber-400"><span id="reqForceOutput">0.0</span> N</div>
+                    </div>
+                    <div class="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
+                        <div class="text-xs text-slate-400">อัตราการย่อย ($Capacity$)</div>
+                        <div class="text-base sm:text-lg font-bold text-cyan-400"><span id="capacityOutput">0.0</span> kg/h</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Mathematical Formula Box -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-md font-semibold text-slate-200 border-b border-slate-800 pb-2 mb-3 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                            สูตรคำนวณทางกลศาสตร์
+                        </h3>
+                        <div class="space-y-3 font-mono text-xs sm:text-sm text-slate-300">
+                            <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                                <p class="text-emerald-400 font-sans font-medium mb-1">1. แรงบิดเพลาตัด ($T$):</p>
+                                <p>$$T = \frac{P \times 9549}{N} \quad (\text{N}\cdot\text{m})$$</p>
+                            </div>
+                            <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                                <p class="text-emerald-400 font-sans font-medium mb-1">2. แรงตัดย่อยที่ปลายใบ ($F_{shear}$):</p>
+                                <p>$$F_{shear} = \frac{T}{R} \quad (\text{N})$$</p>
+                            </div>
+                            <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                                <p class="text-emerald-400 font-sans font-medium mb-1">3. สมรรถนะป้อนย่อย ($Capacity$):</p>
+                                <p>$$Capacity \propto N \times D_{food} \times n$$</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phenomena & Physics Explanation Box -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                    <h3 class="text-md font-semibold text-slate-200 border-b border-slate-800 pb-2 mb-3 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        คำอธิบายปรากฏการณ์ทางกายภาพ
+                    </h3>
+                    <div id="dynamicExplanation" class="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-2">
+                        <!-- Dynamic text generated via JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <div id="challengeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative animate-in fade-in zoom-in duration-200">
+            <!-- Modal Close Button -->
+            <button onclick="toggleChallengeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <!-- Mission Header -->
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">ภารกิจออกแบบเครื่องย่อย (Challenge Mission)</h3>
+                    <p class="text-xs text-slate-400">ปรับพารามิเตอร์ระบบย่อยขยะอาหารเพื่อให้ได้ค่าเป้าหมายที่ต้องการ</p>
+                </div>
+            </div>
+
+            <!-- Challenge Box Details -->
+            <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 mb-5 space-y-3">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-slate-400">ความต้องการโจทย์:</span>
+                    <span id="targetParamName" class="font-bold text-emerald-400">แรงบิดตัด ($T$)</span>
+                </div>
+                <div class="flex justify-between items-baseline">
+                    <span class="text-xs text-slate-500">เป้าหมายที่ต้องทำได้:</span>
+                    <span class="text-2xl font-extrabold text-teal-400"><span id="targetValueText">180.0</span> <span id="targetUnitText">N·m</span></span>
+                </div>
+                <div class="text-xs text-slate-400 bg-slate-900 p-2.5 rounded-lg border border-slate-800/60">
+                    💡 <span class="font-semibold text-slate-300">เงื่อนไข:</span> ปรับแต่ง Slider ในแผงควบคุมให้ค่าปัจจุบันอยู่ในช่วง <span class="text-emerald-400 font-semibold">±3%</span> ของเป้าหมาย โดยที่เครื่องต้องย่อยได้ไม่ติดขัด
+                </div>
+            </div>
+
+            <!-- Current vs Target Comparison -->
+            <div class="grid grid-cols-2 gap-3 mb-6 text-center">
+                <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+                    <p class="text-xs text-slate-400">ค่าปัจจุบันของคุณ</p>
+                    <p id="currentChallengeVal" class="text-xl font-bold text-yellow-400">0.0</p>
+                </div>
+                <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+                    <p class="text-xs text-slate-400">ความคลาดเคลื่อนปัจจุบัน</p>
+                    <p id="currentChallengeDiff" class="text-xl font-bold text-red-400">100%</p>
+                </div>
+            </div>
+
+            <!-- Status Banner inside Modal -->
+            <div id="missionResultAlert" class="hidden mb-4 p-3 rounded-xl text-center text-sm font-semibold"></div>
+
+            <!-- Mission Buttons -->
+            <div class="flex gap-3">
+                <button onclick="generateNewMission()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2.5 rounded-xl transition text-sm">
+                    🎲 สุ่มโจทย์ใหม่
+                </button>
+                <button onclick="checkMissionAnswer()" class="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-medium py-2.5 rounded-xl transition text-sm shadow-lg shadow-emerald-500/20">
+                    ✓ ตรวจคำตอบ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- State Variables ---
+        let motorPower = 2.2;  // kW
+        let rpm = 120;         // RPM
+        let foodSize = 60;     // mm
+        let bladeRadius = 110; // mm
+        let numBlades = 6;     // blades per rotor
+
+        let calculatedTorque = 0;   // N.m
+        let calculatedForce = 0;    // N
+        let requiredForce = 0;      // N
+        let calculatedCapacity = 0; // kg/h
+        let isJammed = false;
+
+        let isPaused = false;
+        let rotationAngle = 0; // Radians/Degrees
+        let animationFrameId = null;
+
+        // Food particles animation state
+        let particles = [];
+
+        // Challenge Mission State
+        let currentMission = {
+            type: 'Torque', // 'Torque', 'Force', 'Capacity'
+            targetValue: 180,
+            unit: 'N·m'
+        };
+
+        // --- DOM Elements ---
+        const motorPowerSlider = document.getElementById('motorPowerSlider');
+        const rpmSlider = document.getElementById('rpmSlider');
+        const foodSizeSlider = document.getElementById('foodSizeSlider');
+        const bladeRadiusSlider = document.getElementById('bladeRadiusSlider');
+        const numBladesSlider = document.getElementById('numBladesSlider');
+
+        const motorPowerVal = document.getElementById('motorPowerVal');
+        const rpmVal = document.getElementById('rpmVal');
+        const foodSizeVal = document.getElementById('foodSizeVal');
+        const bladeRadiusVal = document.getElementById('bladeRadiusVal');
+        const numBladesVal = document.getElementById('numBladesVal');
+
+        const torqueOutput = document.getElementById('torqueOutput');
+        const forceOutput = document.getElementById('forceOutput');
+        const reqForceOutput = document.getElementById('reqForceOutput');
+        const capacityOutput = document.getElementById('capacityOutput');
+        const dynamicExplanation = document.getElementById('dynamicExplanation');
+        const jammedWarning = document.getElementById('jammedWarning');
+
+        const canvas = document.getElementById('shredderCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // --- Event Listeners ---
+        motorPowerSlider.addEventListener('input', (e) => { motorPower = parseFloat(e.target.value); motorPowerVal.textContent = motorPower.toFixed(1); updateCalculations(); });
+        rpmSlider.addEventListener('input', (e) => { rpm = parseInt(e.target.value); rpmVal.textContent = rpm; updateCalculations(); });
+        foodSizeSlider.addEventListener('input', (e) => { foodSize = parseInt(e.target.value); foodSizeVal.textContent = foodSize; updateCalculations(); });
+        bladeRadiusSlider.addEventListener('input', (e) => { bladeRadius = parseInt(e.target.value); bladeRadiusVal.textContent = bladeRadius; updateCalculations(); });
+        numBladesSlider.addEventListener('input', (e) => { numBlades = parseInt(e.target.value); numBladesVal.textContent = numBlades; updateCalculations(); });
+
+        function updateCalculations() {
+            // 1. Torque T = (P [kW] * 9549) / N [rpm]
+            calculatedTorque = rpm > 0 ? (motorPower * 9549) / rpm : 0;
+
+            // 2. Cutting Shear Force available at blade tip F = Torque / Radius (m)
+            const radiusMeters = bladeRadius / 1000;
+            calculatedForce = radiusMeters > 0 ? calculatedTorque / radiusMeters : 0;
+
+            // 3. Required Force based on food item size & hardness factor
+            // Larger food chunks require quadratically higher shear force
+            const hardnessFactor = 1.8; // material constant
+            requiredForce = Math.pow(foodSize / 10, 2) * 22 * hardnessFactor;
+
+            // Check if machine stalls/jams
+            isJammed = calculatedForce < requiredForce;
+
+            // 4. Shredding Capacity (kg/h estimation)
+            if (!isJammed) {
+                // Capacity scales with speed, size, blade count, and blade radius
+                calculatedCapacity = (rpm * 0.45) * (foodSize * 0.35) * (numBlades * 0.5) * (bladeRadius / 100);
+            } else {
+                calculatedCapacity = 0;
+            }
+
+            // Display UI updates
+            torqueOutput.textContent = calculatedTorque.toFixed(1);
+            forceOutput.textContent = calculatedForce.toFixed(0);
+            reqForceOutput.textContent = requiredForce.toFixed(0);
+            capacityOutput.textContent = calculatedCapacity.toFixed(1);
+
+            if (isJammed) {
+                jammedWarning.classList.remove('hidden');
+            } else {
+                jammedWarning.classList.add('hidden');
+            }
+
+            updateExplanations();
+            updateChallengeStatusUI();
+        }
+
+        function updateExplanations() {
+            let mechanicalStatus = "";
+            if (isJammed) {
+                mechanicalStatus = "<span class='text-red-400 font-semibold'>แรงบิดมอเตอร์ไม่เพียงพอ (Stalled/Jammed)</span> — แรงตัดย่อยที่มี (" + calculatedForce.toFixed(0) + " N) น้อยกว่าแรงต้านทานของวัตถุ (" + requiredForce.toFixed(0) + " N) ทำให้เพลาหยุดหมุน";
+            } else {
+                const safetyMargin = ((calculatedForce / requiredForce) - 1) * 100;
+                mechanicalStatus = "<span class='text-emerald-400 font-semibold'>กลไกทำงานได้อย่างราบรื่น</span> — มีระยะเผื่อความปลอดภัยแรงตัด (Safety Margin) อยู่ที่ประมาณ <span class='text-teal-300 font-semibold'>" + safetyMargin.toFixed(0) + "%</span>";
+            }
+
+            const rpmEffect = rpm < 80 ?
+                "ความเร็วรอบต่ำให้แรงบิดสูง เหมาะกับการย่อยวัตถุแข็งปานกลาง" :
+                "ความเร็วรอบสูงเพิ่มอัตราป้อนย่อยต่อชั่วโมง แต่จะลดแรงบิดบดย่อยลงตามสัดส่วน";
+
+            dynamicExplanation.innerHTML = `
+                <p>• <strong>สภาวะกลไก:</strong> ${mechanicalStatus}</p>
+                <p>• <strong>ความเร็วรอบ & แรงบิด:</strong> ที่ <span class="text-emerald-400 font-semibold">${rpm} RPM</span> มอเตอร์สร้างแรงบิดได้ <span class="text-emerald-400 font-semibold">${calculatedTorque.toFixed(1)} N·m</span> — ${rpmEffect}</p>
+                <p>• <strong>พฤติกรรมการย่อย:</strong> รัศมีใบตัด <span class="text-emerald-400 font-semibold">${bladeRadius} mm</span> ร่วมกับเศษอาหารขนาด <span class="text-emerald-400 font-semibold">${foodSize} mm</span> สร้างกำลังย่อยย่อยได้สูงสุด <span class="text-cyan-400 font-semibold">${calculatedCapacity.toFixed(1)} kg/h</span></p>
+            `;
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 8; i++) {
+                spawnParticle();
+            }
+        }
+
+        function spawnParticle() {
+            particles.push({
+                x: canvas.width / 2 + (Math.random() - 0.5) * 60,
+                y: 20 + Math.random() * 40,
+                size: (foodSize / 10) * (0.8 + Math.random() * 0.4) * 4,
+                color: ['#84cc16', '#eab308', '#f97316', '#a16207'][Math.floor(Math.random() * 4)],
+                shredded: false,
+                vy: 1 + Math.random() * 1.5
+            });
+        }
+
+        function feedExtraFood() {
+            for (let i = 0; i < 3; i++) {
+                spawnParticle();
+            }
+        }
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight || 320;
+        }
+
+        function drawShredderSimulation() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2 + 20;
+
+            // Scale blade display radius
+            const displayRadius = Math.min(canvas.width, canvas.height) * 0.22 * (bladeRadius / 120);
+            const shaftDistance = displayRadius * 1.45; // Dual shaft overlap distance
+
+            const leftShaftX = centerX - shaftDistance / 2;
+            const rightShaftX = centerX + shaftDistance / 2;
+
+            // 1. Draw Hopper Funnel (ปล่องป้อนเศษอาหาร)
+            ctx.fillStyle = '#1e293b';
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 3;
+
+            ctx.beginPath();
+            ctx.moveTo(centerX - 140, 20);
+            ctx.lineTo(leftShaftX - displayRadius - 10, centerY - displayRadius * 0.5);
+            ctx.lineTo(leftShaftX - displayRadius - 10, centerY + displayRadius + 10);
+            ctx.lineTo(centerX - 80, canvas.height - 10);
+            ctx.lineTo(centerX + 80, canvas.height - 10);
+            ctx.lineTo(rightShaftX + displayRadius + 10, centerY + displayRadius + 10);
+            ctx.lineTo(rightShaftX + displayRadius + 10, centerY - displayRadius * 0.5);
+            ctx.lineTo(centerX + 140, 20);
+            ctx.stroke();
+
+            // 2. Draw Food Particles (เศษอาหารก่อนและหลังถูกย่อย)
+            for (let p of particles) {
+                ctx.fillStyle = p.color;
+                if (!p.shredded) {
+                    // Pre-shredded food chunk
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    if (!isPaused && !isJammed) {
+                        p.y += p.vy * (rpm / 100);
+                        // Shredding zone collision check
+                        if (p.y >= centerY - displayRadius * 0.3) {
+                            p.shredded = true;
+                            // Split into smaller fragments
+                            for (let k = 0; k < 3; k++) {
+                                particles.push({
+                                    x: p.x + (Math.random() - 0.5) * 20,
+                                    y: p.y + 10,
+                                    size: p.size * 0.35,
+                                    color: p.color,
+                                    shredded: true,
+                                    vy: 2 + Math.random() * 2
+                                });
+                            }
+                        }
+                    }
+                } else {
+                    // Shredded small pieces falling down
+                    ctx.beginPath();
+                    ctx.rect(p.x, p.y, p.size, p.size);
+                    ctx.fill();
+
+                    if (!isPaused && !isJammed) {
+                        p.y += p.vy;
+                    }
+                }
+            }
+
+            // Remove fallen particles out of screen and replenish
+            particles = particles.filter(p => p.y < canvas.height - 15);
+            if (particles.length < 6 && !isJammed) {
+                spawnParticle();
+            }
+
+            // 3. Draw Rotating Dual Shaft Blades
+            drawRotorBlade(leftShaftX, centerY, displayRadius, numBlades, rotationAngle, true);
+            drawRotorBlade(rightShaftX, centerY, displayRadius, numBlades, -rotationAngle, false);
+
+            // 4. Center Meshing Compression Arrow Indicator
+            if (!isJammed) {
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.4)';
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, 15, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Helper to draw a single shredder blade rotor with hook teeth
+        function drawRotorBlade(cx, cy, radius, blades, angle, isLeftRotor) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(angle);
+
+            // Blade body fill & border
+            ctx.fillStyle = isJammed ? '#7f1d1d' : (isLeftRotor ? '#0284c7' : '#0d9488');
+            ctx.strokeStyle = '#f8fafc';
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            const angleStep = (Math.PI * 2) / blades;
+
+            for (let i = 0; i < blades; i++) {
+                const a = i * angleStep;
+                // Inner root
+                const innerR = radius * 0.45;
+                const ix = Math.cos(a) * innerR;
+                const iy = Math.sin(a) * innerR;
+
+                // Hook tooth tip
+                const toothAngle = a + (isLeftRotor ? 0.25 : -0.25);
+                const tx = Math.cos(toothAngle) * radius;
+                const ty = Math.sin(toothAngle) * radius;
+
+                // Tooth back slope
+                const backAngle = a + angleStep * 0.6;
+                const bx = Math.cos(backAngle) * (radius * 0.65);
+                const by = Math.sin(backAngle) * (radius * 0.65);
+
+                if (i === 0) ctx.moveTo(ix, iy);
+                else ctx.lineTo(ix, iy);
+
+                ctx.lineTo(tx, ty);
+                ctx.lineTo(bx, by);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Center Shaft Axis Hub
+            ctx.beginPath();
+            ctx.arc(0, 0, radius * 0.25, 0, Math.PI * 2);
+            ctx.fillStyle = '#334155';
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(0, 0, radius * 0.1, 0, Math.PI * 2);
+            ctx.fillStyle = '#f8fafc';
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function animate(timestamp) {
+            if (!isPaused && !isJammed) {
+                // Rotation velocity proportional to RPM
+                const radPerFrame = (rpm / 60) * (2 * Math.PI) * (1 / 60);
+                rotationAngle += radPerFrame;
+            }
+            drawShredderSimulation();
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            const pauseText = document.getElementById('pauseText');
+            const pauseIcon = document.getElementById('pauseIcon');
+            if (isPaused) {
+                pauseText.textContent = "เล่นต่อ";
+                pauseIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>`;
+            } else {
+                pauseText.textContent = "หยุดชั่วคราว";
+                pauseIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>`;
+            }
+        }
+
+        function resetSliders() {
+            motorPowerSlider.value = 2.2; motorPower = 2.2; motorPowerVal.textContent = "2.2";
+            rpmSlider.value = 120; rpm = 120; rpmVal.textContent = "120";
+            foodSizeSlider.value = 60; foodSize = 60; foodSizeVal.textContent = "60";
+            bladeRadiusSlider.value = 110; bladeRadius = 110; bladeRadiusVal.textContent = "110";
+            numBladesSlider.value = 6; numBlades = 6; numBladesVal.textContent = "6";
+            updateCalculations();
+        }
+
+        function toggleChallengeModal() {
+            const modal = document.getElementById('challengeModal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                updateChallengeStatusUI();
+            }
+        }
+
+        function generateNewMission() {
+            const types = ['Torque', 'Force', 'Capacity'];
+            const chosenType = types[Math.floor(Math.random() * types.length)];
+            currentMission.type = chosenType;
+
+            const alertBox = document.getElementById('missionResultAlert');
+            alertBox.classList.add('hidden');
+
+            if (chosenType === 'Torque') {
+                currentMission.targetValue = Math.floor(Math.random() * 200) + 100; // 100 - 300 N.m
+                currentMission.unit = 'N·m';
+                document.getElementById('targetParamName').textContent = 'แรงบิดเพลาตัด (Torque)';
+            } else if (chosenType === 'Force') {
+                currentMission.targetValue = Math.floor(Math.random() * 1500) + 800; // 800 - 2300 N
+                currentMission.unit = 'N';
+                document.getElementById('targetParamName').textContent = 'แรงตัดย่อยที่ปลายใบ (Shear Force)';
+            } else {
+                currentMission.targetValue = Math.floor(Math.random() * 80) + 30; // 30 - 110 kg/h
+                currentMission.unit = 'kg/h';
+                document.getElementById('targetParamName').textContent = 'สมรรถนะการย่อย (Shredding Capacity)';
+            }
+
+            document.getElementById('targetValueText').textContent = currentMission.targetValue;
+            document.getElementById('targetUnitText').textContent = currentMission.unit;
+
+            updateChallengeStatusUI();
+        }
+
+        function getCurrentMissionVal() {
+            if (currentMission.type === 'Torque') return calculatedTorque;
+            if (currentMission.type === 'Force') return calculatedForce;
+            return calculatedCapacity;
+        }
+
+        function updateChallengeStatusUI() {
+            const currentVal = getCurrentMissionVal();
+            const targetVal = currentMission.targetValue;
+            const diffPct = targetVal > 0 ? Math.abs((currentVal - targetVal) / targetVal) * 100 : 100;
+
+            document.getElementById('currentChallengeVal').textContent = `${currentVal.toFixed(1)} ${currentMission.unit}`;
+            document.getElementById('currentChallengeDiff').textContent = `${diffPct.toFixed(1)}%`;
+
+            if (diffPct <= 3.0 && !isJammed) {
+                document.getElementById('currentChallengeDiff').className = "text-xl font-bold text-emerald-400";
+            } else {
+                document.getElementById('currentChallengeDiff').className = "text-xl font-bold text-amber-400";
+            }
+        }
+
+        function checkMissionAnswer() {
+            const currentVal = getCurrentMissionVal();
+            const targetVal = currentMission.targetValue;
+            const diffPct = Math.abs((currentVal - targetVal) / targetVal) * 100;
+            const alertBox = document.getElementById('missionResultAlert');
+
+            alertBox.classList.remove('hidden', 'bg-emerald-500/20', 'text-emerald-300', 'bg-red-500/20', 'text-red-300', 'border-emerald-500/40', 'border-red-500/40', 'border');
+
+            if (isJammed) {
+                alertBox.classList.add('bg-red-500/20', 'text-red-300', 'border-red-500/40', 'border');
+                alertBox.innerHTML = `❌ เครื่องยนต์ติดขัด (Jammed)! ต้องปรับเพิ่มกำลัง หรือลดขนาดเศษอาหารลงเพื่อไม่ให้เครื่องดับ`;
+            } else if (diffPct <= 3.0) {
+                alertBox.classList.add('bg-emerald-500/20', 'text-emerald-300', 'border-emerald-500/40', 'border');
+                alertBox.innerHTML = `🎉 ยินดีด้วย! ออกแบบสำเร็จตามเป้าหมาย (ความคลาดเคลื่อนเพียง ${diffPct.toFixed(2)}%)`;
+            } else {
+                alertBox.classList.add('bg-red-500/20', 'text-red-300', 'border-red-500/40', 'border');
+                alertBox.innerHTML = `❌ ยังไม่ผ่านเกณฑ์! ค่าปัจจุบันต่างจากเป้าหมายอยู่ ${diffPct.toFixed(1)}% (ต้องไม่เกิน 3%)`;
+            }
+        }
+
+        // --- Window Initialization ---
+        window.addEventListener('resize', resizeCanvas);
+
+        window.onload = function () {
+            resizeCanvas();
+            initParticles();
+            updateCalculations();
+            generateNewMission();
+            animate();
+        };
+    </script>
+</body>
+</html>
